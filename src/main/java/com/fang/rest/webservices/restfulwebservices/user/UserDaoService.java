@@ -1,5 +1,6 @@
 package com.fang.rest.webservices.restfulwebservices.user;
 
+import com.fang.rest.webservices.restfulwebservices.exception.UserNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -31,6 +32,11 @@ public class UserDaoService {
 
     public User findOne(Integer id) {
         Predicate<? super User> predicate = user -> user.getId().equals(id);
-        return users.stream().filter(predicate).findFirst().orElse(null);
+        return users.stream().filter(predicate).findFirst().orElseThrow(() -> new UserNotFoundException("Id: " + id));
+    }
+
+    public void deleteById(Integer id) {
+        Predicate<? super User> predicate = user -> user.getId().equals(id);
+        users.removeIf(predicate);
     }
 }

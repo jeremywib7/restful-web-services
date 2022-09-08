@@ -1,8 +1,7 @@
 package com.fang.rest.webservices.restfulwebservices.user;
 
-import com.fang.rest.webservices.restfulwebservices.exception.UserNotFoundException;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -21,23 +20,23 @@ public class UserResource {
     }
 
     @GetMapping("/users/{id}")
-    public User findOneUser(@PathVariable Integer id) throws Exception {
-        User user = userDaoService.findOne(id);
+    public User findOneUser(@PathVariable Integer id) {
+        return userDaoService.findOne(id);
+    }
 
-        if (user == null)
-            throw new UserNotFoundException("Id: " + id);
-
-        return user;
+    @DeleteMapping("/users/{id}")
+    public void deleteUser(@PathVariable Integer id) {
+        userDaoService.deleteById(id);
     }
 
     @PostMapping("/users")
-    public ResponseEntity<User> createUser(@RequestBody User user) {
+    public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
         User savedUser = userDaoService.save(user);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(savedUser.getId())
                 .toUri();
-        return ResponseEntity.created(location).build();
+        return ResponseEntity.created(location).body(savedUser);
     }
 
 }
