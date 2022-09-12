@@ -2,12 +2,17 @@ package com.fang.rest.webservices.restfulwebservices.user;
 
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @AllArgsConstructor
@@ -20,8 +25,12 @@ public class UserResource {
     }
 
     @GetMapping("/users/{id}")
-    public User findOneUser(@PathVariable Integer id) {
-        return userDaoService.findOne(id);
+    public EntityModel<User> findOneUser(@PathVariable Integer id) {
+        User user = userDaoService.findOne(id);
+        EntityModel<User> userEntityModel = EntityModel.of(user);
+        WebMvcLinkBuilder link = linkTo(methodOn(this.getClass()).retrieveAllUsers());
+        userEntityModel.add(link.withRel("all-users"));
+        return userEntityModel;
     }
 
     @DeleteMapping("/users/{id}")

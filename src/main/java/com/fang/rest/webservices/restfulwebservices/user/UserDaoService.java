@@ -1,6 +1,9 @@
 package com.fang.rest.webservices.restfulwebservices.user;
 
 import com.fang.rest.webservices.restfulwebservices.exception.UserNotFoundException;
+import org.springframework.hateoas.EntityModel;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
