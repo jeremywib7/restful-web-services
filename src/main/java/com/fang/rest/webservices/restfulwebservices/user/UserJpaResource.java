@@ -1,6 +1,7 @@
 package com.fang.rest.webservices.restfulwebservices.user;
 
 import com.fang.rest.webservices.restfulwebservices.exception.UserNotFoundException;
+import com.fang.rest.webservices.restfulwebservices.jpa.PostRepository;
 import com.fang.rest.webservices.restfulwebservices.jpa.UserRepository;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -12,7 +13,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -23,6 +23,8 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class UserJpaResource {
 
     private final UserRepository userRepository;
+
+    private final PostRepository postRepository;
 
     @GetMapping("/users")
     public List<User> retrieveAllUsers() {
@@ -38,10 +40,27 @@ public class UserJpaResource {
         return userEntityModel;
     }
 
-
     @DeleteMapping("/users/{id}")
     public void deleteUser(@PathVariable Integer id) {
         userRepository.deleteById(id);
+    }
+
+    @PostMapping("/users/{id}/posts")
+    public ResponseEntity<Object> createPostsForUsers(@PathVariable Integer id, @Valid @RequestBody Post post) {
+        User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User is not found"));
+        post.setUser(user);
+        postRepository.save(post);
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(id)
+                .toUri();
+        return ResponseEntity.created(location).build();
+    }
+
+    @GetMapping("/users/{id}/posts")
+    public List<Post> retrievePostsForUsers(@PathVariable Integer id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User is not found"));
+        return user.getPosts();
     }
 
     @PostMapping("/users")
