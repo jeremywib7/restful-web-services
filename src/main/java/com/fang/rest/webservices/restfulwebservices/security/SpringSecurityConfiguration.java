@@ -2,6 +2,7 @@ package com.fang.rest.webservices.restfulwebservices.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -14,6 +15,12 @@ public class SpringSecurityConfiguration {
         httpSecurity.authorizeHttpRequests(
                 auth -> auth.anyRequest().authenticated()
         );
+
+        // if a request is not authenticated, a web page is show
+        httpSecurity.httpBasic(Customizer.withDefaults());
+
+        // CSRF -> POST, PUT
+        httpSecurity.csrf().disable();
 
         return httpSecurity.build();
     }
